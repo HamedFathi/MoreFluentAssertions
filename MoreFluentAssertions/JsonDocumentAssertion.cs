@@ -35,7 +35,7 @@ namespace MoreFluentAssertions
             {
                 var lastDash = item.LastIndexOfAny(new[] { '-' });
                 var path = item.Substring(0, lastDash);
-                if (allUnknownKeys.Any(x => x == path))
+                if (allUnknownKeys.Any(x => x == path) && expected.Any(x => x.StartsWith($"{path}-")))
                 {
                     actualResult.Add(path);
                 }
@@ -49,7 +49,7 @@ namespace MoreFluentAssertions
             {
                 var lastDash = item.LastIndexOfAny(new[] { '-' });
                 var path = item.Substring(0, lastDash);
-                if (allUnknownKeys.Any(x => x == path))
+                if (allUnknownKeys.Any(x => x == path) && actual.Any(x => x.StartsWith($"{path}-")))
                 {
                     expectedResult.Add(path);
                 }
@@ -117,6 +117,6 @@ namespace MoreFluentAssertions
                 .FailWith(message);
 
             return new AndConstraint<JsonDocumentAssertion>(this);
-        }       
+        }
     }
 }
