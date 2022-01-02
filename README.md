@@ -79,9 +79,9 @@ public void CHECK_JSON_SCHEMA()
 ```
 
 `HaveSameSchemaAs` has some rules for checking types:
-1. `true` and `false` are considered `Boolean` type.
-2. A string value parses for detecting `Date` type, if it was true, it considered as `Date` type.
-3. For pathes with `null` or `undefined`, it just compares `paths` becuase it does not know the real type for the values.
+1. `true` and `false` are considered as `Boolean` type.
+2. A string value parses for detecting `Date` type, if it was true, it has considered as `Date` type.
+3. For pathes with `null` or `undefined`, it just compares `paths` becuase it does not know the real type of values.
 
 ##### Error
 
