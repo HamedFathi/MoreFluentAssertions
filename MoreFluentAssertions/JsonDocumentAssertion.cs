@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace MoreFluentAssertions
 {
@@ -117,6 +118,68 @@ namespace MoreFluentAssertions
                 .FailWith(message);
 
             return new AndConstraint<JsonDocumentAssertion>(this);
+        }
+        public AndConstraint<JsonDocumentAssertion> ContainSchemaOf(JsonDocument expected, string because = "", params object[] becauseArgs)
+        {
+            var actualKeys = _actualJDoc.RootElement.GetKeys();
+            var expectedKeys = expected.RootElement.GetKeys();
+
+            var (actualResult, expectedResult) = RemoveUnknownFromDifferences(actualKeys, expectedKeys);
+
+            actualResult = actualResult.Select(x => Regex.Replace(x, @"\[[0-9]+\]", ".[item]")).Distinct();
+            expectedResult = expectedResult.Select(x => Regex.Replace(x, @"\[[0-9]+\]", ".[item]")).Distinct();
+
+            var existsInActual = actualResult.Except(expectedResult).ToList();
+            var existsInExpected = expectedResult.Except(actualResult).ToList();
+
+            var status = !existsInActual.Any() && !existsInExpected.Any();
+
+            var sb = new StringBuilder();
+            if (existsInActual.Any())
+            {
+                sb.AppendLine("The inputs do not match, the differences are as follows:");
+                sb.AppendLine();
+                sb.AppendLine("Actual:");
+
+                foreach (var item in existsInActual)
+                {
+                    var lastDash = item.LastIndexOfAny(new[] { '-' });
+                    var len = item.Length;
+                    if (!string.IsNullOrEmpty(item))
+                    {
+                        var path = item.Substring(0, lastDash);
+                        var type = item.Substring(lastDash + 1);
+                        sb.AppendLine($"Path: {path}, Type:{type}");
+                    }
+                }
+            }
+            if (existsInExpected.Any())
+            {
+                sb.AppendLine();
+                sb.AppendLine("Expected:");
+
+                foreach (var item in existsInExpected)
+                {
+                    var lastDash = item.LastIndexOfAny(new[] { '-' });
+                    var len = item.Length;
+                    if (!string.IsNullOrEmpty(item))
+                    {
+                        var path = item.Substring(0, lastDash);
+                        var type = item.Substring(lastDash + 1);
+                        sb.AppendLine($"Path: {path}, Type:{type}");
+                    }
+                }
+            }
+
+            var message = sb.ToString();
+
+            Execute.Assertion
+                .ForCondition(status)
+                .BecauseOf(because, becauseArgs)
+                .FailWith(message);
+
+            return new AndConstraint<JsonDocumentAssertion>(this);
+
         }
     }
 }
