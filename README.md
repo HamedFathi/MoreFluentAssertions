@@ -77,3 +77,16 @@ public void CHECK_JSON_SCHEMA()
     actualDoc.Should().HaveSameSchemaAs(expectedDoc);
 }
 ```
+
+`HaveSameSchemaAs` has some rules for checking types:
+1. `true` and `false` are considered as `Boolean` type.
+2. A string value parses for detecting `Date` type, if it was true, it has considered as `Date` type.
+3. For pathes with `null` or `undefined`, it just compares `paths` becuase it does not know the real type of values.
+
+##### Error Messages
+
+When two schemas are not equal, you will see details.
+![Screenshot_1](https://user-images.githubusercontent.com/8418700/147871230-c3166d39-c31c-406c-a162-d7d9217c1b7c.png)
+
+* `$` means root of JSON.
+
