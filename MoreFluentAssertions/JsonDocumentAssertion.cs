@@ -119,10 +119,16 @@ namespace MoreFluentAssertions
 
             return new AndConstraint<JsonDocumentAssertion>(this);
         }
-        public AndConstraint<JsonDocumentAssertion> ContainSchemaOf(JsonDocument expected, string because = "", params object[] becauseArgs)
+        public AndConstraint<JsonDocumentAssertion> ContainSchemaOf(JsonDocument expected, bool ignoreAdditionalProps = false, string because = "", params object[] becauseArgs)
         {
-            var actualKeys = _actualJDoc.RootElement.GetKeys();
-            var expectedKeys = expected.RootElement.GetKeys();
+            var actualKeys = _actualJDoc.RootElement
+                .GetKeys()
+                .WhereIf(ignoreAdditionalProps, x => !x.Contains("additionalProp"))
+                ;
+            var expectedKeys = expected.RootElement
+                .GetKeys()
+                .WhereIf(ignoreAdditionalProps, x => !x.Contains("additionalProp"))
+                ;
 
             var (actualResult, expectedResult) = RemoveUnknownFromDifferences(actualKeys, expectedKeys);
 
